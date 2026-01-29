@@ -1,5 +1,3 @@
-fastapi
-uvicorn[standard]
 pydantic
 openai
 requests
@@ -7,3 +5,7 @@ python-dotenv
 gspread
 pytest
 pyttsx3
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+twilio==8.13.0
