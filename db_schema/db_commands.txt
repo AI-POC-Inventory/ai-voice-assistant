@@ -1,0 +1,32 @@
+sqlite3 ai_voice.db
+del ai_voice.db
+
+sqlite> .tables
+ai_voice_assistants
+
+
+CREATE TABLE "ai_voice_assistants" (
+	"id"	INTEGER,
+	"user_id"	INTEGER,
+	"twilio_number"	TEXT NOT NULL UNIQUE,
+	"assistant_name"	TEXT,
+	"role"	TEXT,
+	"languages"	TEXT,
+	"accents"	TEXT,
+	"business_sector"	TEXT,
+	"sector_settings"	TEXT,
+	"voice_tone"	TEXT,
+	"speaking_speed"	TEXT,
+	"personality_settings"	TEXT,
+	"conversation_flow"	TEXT,
+	"escalation_rules"	TEXT,
+	"is_configurable"	BOOLEAN DEFAULT 1,
+	"voice_enabled"	BOOLEAN DEFAULT 1,
+	"text_enabled"	BOOLEAN DEFAULT 1,
+	"created_at"	DATETIME DEFAULT CURRENT_TIMESTAMP,
+	"updated_at"	DATETIME DEFAULT CURRENT_TIMESTAMP,
+	"escalate_after"	INTEGER,
+	"handoff_message"	TEXT,
+	"services"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);

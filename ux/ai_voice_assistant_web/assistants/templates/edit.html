@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit AI Voice Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background:#f7f7f7; }
+        .container { width: 900px; margin: auto; background:#fff; padding:20px; border-radius:6px; }
+        h2 { margin-bottom: 15px; }
+        label { display:block; margin-top:10px; font-weight:bold; }
+        input, select, textarea { width:100%; padding:8px; margin-top:5px; }
+        .checkbox-group label { font-weight:normal; display:inline-block; margin-right:15px; }
+        button { margin-top:15px; padding:10px 20px; background:#007bff; color:#fff; border:none; }
+        .row { display:flex; gap:20px; }
+        .col { flex:1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Edit Assistant – {{ obj.assistant_name }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Twilio Number</label>
+        <input type="text" name="twilio_number" value="{{ obj.twilio_number }}" required>
+
+        <label>Assistant Name</label>
+        <input type="text" name="assistant_name" value="{{ obj.assistant_name }}">
+
+        <label>Role</label>
+        <input type="text" name="role" value="{{ obj.role }}">
+
+        <div class="row">
+            <div class="col">
+                <label>Languages</label>
+                <div class="checkbox-group">
+                    {% for lang in LANGUAGES %}
+                        <label>
+                            <input type="checkbox" name="languages" value="{{ lang }}"
+                            {% if lang in obj.languages_list %}checked{% endif %}>
+                            {{ lang }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col">
+                <label>Accents</label>
+                <div class="checkbox-group">
+                    {% for acc in ACCENTS %}
+                        <label>
+                            <input type="checkbox" name="accents" value="{{ acc }}"
+                            {% if acc in obj.accents_list %}checked{% endif %}>
+                            {{ acc }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <label>Business Sector</label>
+        <input type="text" name="business_sector" value="{{ obj.business_sector }}">
+
+        <label>Voice Tone</label>
+        <select name="voice_tone">
+            {% for tone in VOICE_TONES %}
+                <option value="{{ tone }}" {% if obj.voice_tone == tone %}selected{% endif %}>{{ tone }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Speaking Speed</label>
+        <select name="speaking_speed">
+            {% for sp in SPEEDS %}
+                <option value="{{ sp }}" {% if obj.speaking_speed == sp %}selected{% endif %}>{{ sp }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Escalation Rules</label>
+        <textarea name="escalation_rules">{{ obj.escalation_rules }}</textarea>
+
+        <label>Escalate After (Attempts)</label>
+        <input type="number" name="escalate_after" value="{{ obj.escalate_after }}">
+
+        <label>Handoff Message</label>
+        <input type="text" name="handoff_message" value="{{ obj.handoff_message }}">
+
+        <div class="row">
+            <div class="col">
+                <label>
+                    <input type="checkbox" name="voice_enabled" {% if obj.voice_enabled %}checked{% endif %}>
+                    Voice Enabled
+                </label>
+            </div>
+            <div class="col">
+                <label>
+                    <input type="checkbox" name="text_enabled" {% if obj.text_enabled %}checked{% endif %}>
+                    Text Enabled
+                </label>
+            </div>
+            <div class="col">
+                <label>
+                    <input type="checkbox" name="is_configurable" {% if obj.is_configurable %}checked{% endif %}>
+                    Configurable
+                </label>
+            </div>
+        </div>
+
+        <button type="submit">💾 Update Assistant</button>
+        <a href="/" style="margin-left:15px;">⬅ Back</a>
+    </form>
+</div>
+
+</body>
+</html>
