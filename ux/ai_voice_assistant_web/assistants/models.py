@@ -37,5 +37,11 @@ class AIVoiceAssistant(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
+    google_calendar_email = models.EmailField(null=True, blank=True)
+    google_access_token = models.TextField(null=True, blank=True)
+    google_refresh_token = models.TextField(null=True, blank=True)
+    google_token_expiry = models.DateTimeField(null=True, blank=True)
+
+
     def __str__(self):
         return f"{self.assistant_name} ({self.twilio_number})"

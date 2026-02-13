@@ -116,3 +116,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Google OAuth (Calendar)
+GOOGLE_CLIENT_ID = "989713142030-38j6ajhumsf381i79t7ga3qq81tg86rj.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_REDIRECT_URI = "http://localhost:8000/google/callback/"
+

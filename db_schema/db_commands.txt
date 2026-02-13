@@ -28,5 +28,9 @@ CREATE TABLE "ai_voice_assistants" (
 	"escalate_after"	INTEGER,
 	"handoff_message"	TEXT,
 	"services"	TEXT,
+	"google_calendar_email"	TEXT,
+	"google_access_token"	TEXT,
+	"google_refresh_token"	TEXT,
+	"google_token_expiry"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );

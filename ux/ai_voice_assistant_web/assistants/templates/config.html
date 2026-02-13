@@ -267,6 +267,29 @@
               </div>
             </div>
           </div>
+          <hr class="my-4">
+          <h6>Booking Settings</h6>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="booking_required" name="booking_required"
+                  onchange="toggleCalendar()">
+            <label class="form-check-label">Booking Required?</label>
+          </div>
+
+          <div id="calendar_section" style="display:none;">
+            <div class="mb-3">
+              <label>Connect Google Calendar</label><br>
+      <a href="{% url 'google_auth_start' %}" class="btn btn-outline-primary">
+        🔐 Connect with Google
+      </a>
+            </div>
+
+            {% if obj.google_calendar_email %}
+            <div class="alert alert-success">
+              Connected as: {{ obj.google_calendar_email }}
+            </div>
+            {% endif %}
+          </div>
 
           <div class="mb-3">
             <label>Escalation Rules</label>
@@ -299,3 +322,10 @@
     </div>
   </div>
 </div>
+<script>
+function toggleCalendar() {
+  const cb = document.getElementById("booking_required");
+  const section = document.getElementById("calendar_section");
+  section.style.display = cb.checked ? "block" : "none";
+}
+</script>
