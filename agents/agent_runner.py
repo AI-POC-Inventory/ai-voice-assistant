@@ -1,11 +1,19 @@
+
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from agent import agent
 from google.genai import types
 import os
+from dotenv import load_dotenv
+import re
+import json
 
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 APP_NAME = "ivr_app"
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCFmGJLnlVTsz_oO3P17bbr7X4-Y5Kq7e0"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if GOOGLE_API_KEY:
+    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 session_service = InMemorySessionService()
 
@@ -18,10 +26,14 @@ runner = Runner(
 
 
 def run_agent(phone_number: str, user_text: str) -> str:
+    
+    user_text += f" Twilio number: {phone_number}."
+    
     message = types.Content(
             role="user",
             parts=[types.Part(text=user_text)]
         )
+    print(f"Phone number: {phone_number}, User text: {user_text}")
     events = runner.run(
         user_id=phone_number,
         session_id=phone_number,
@@ -36,5 +48,15 @@ def run_agent(phone_number: str, user_text: str) -> str:
                 if hasattr(part, "text") and part.text:
                     final_text = part.text
 
-    return final_text or "Sorry, I didn't understand that."
+
+    print(f"Agent reply: {final_text}")
+    
+    match = re.search(r'({.*})', final_text, re.DOTALL)
+    if match:
+        json_content = match.group(1)
+        data = json.loads(json_content)
+        # Extract 'response' from JSON object if possible
+        if isinstance(data, dict) and "response" in data:
+            return data["response"]
+    return "Sorry, I didn't understand that."
 
