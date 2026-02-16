@@ -14,7 +14,7 @@ def config_page(request):
     if request.method == "POST":
         languages = request.POST.getlist("languages")
         accents = request.POST.getlist("accents")
-
+        services = request.POST.getlist("services")
         AIVoiceAssistant.objects.create(
             user_id=request.POST.get("user_id"),
             twilio_number=request.POST.get("twilio_number"),
@@ -24,7 +24,8 @@ def config_page(request):
             # Store as JSON strings
             languages=json.dumps(languages),
             accents=json.dumps(accents),
-
+            services=json.dumps(services),
+            
             business_sector=request.POST.get("business_sector"),
             voice_tone=request.POST.get("voice_tone"),
             speaking_speed=request.POST.get("speaking_speed"),
@@ -35,6 +36,7 @@ def config_page(request):
             is_configurable=True if request.POST.get("is_configurable") else False,
             voice_enabled=True if request.POST.get("voice_enabled") else False,
             text_enabled=True if request.POST.get("text_enabled") else False,
+            booking_required=True if request.POST.get("booking_required") else False,
 
             created_at=now(),
             updated_at=now(),
@@ -70,7 +72,7 @@ def edit_assistant(request, id):
         obj.escalation_rules = request.POST.get("escalation_rules")
         obj.escalate_after = int(request.POST.get("escalate_after", 2))
         obj.handoff_message = request.POST.get("handoff_message")
-
+        obj.services = json.dumps(request.POST.getlist("services"))    
         obj.updated_at = now()
         obj.save()
         return redirect("/")
@@ -91,18 +93,25 @@ def delete_assistant(request, id):
     obj.delete()
     return redirect("/")
 
-def google_auth_start(request):
-    assistant = get_object_or_404(AIVoiceAssistant)
+def google_auth_start(request,assistant_id):
+    import os
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    assistant = get_object_or_404(AIVoiceAssistant, id=assistant_id)
 
     flow = Flow.from_client_secrets_file(
         'client_secret.json',
-        scopes=['https://www.googleapis.com/auth/calendar'],
+        scopes = [
+            'https://www.googleapis.com/auth/calendar',
+            'openid',
+            'https://www.googleapis.com/auth/userinfo.email'
+        ],
         redirect_uri='http://localhost:8000/google/callback/'
     )
 
     auth_url, state = flow.authorization_url(
         access_type='offline',
-        include_granted_scopes='true'
+        include_granted_scopes='true',
+        prompt='consent'
     )
 
     request.session['oauth_state'] = state
@@ -110,49 +119,55 @@ def google_auth_start(request):
 
     return redirect(auth_url)
 
-def google_auth_callback(request):
-    flow = Flow.from_client_secrets_file(
-        'client_secret.json',
-        scopes=['https://www.googleapis.com/auth/calendar'],
-        state=request.session['oauth_state'],
-        redirect_uri='http://localhost:8000/google/callback/'
-    )
 
-    flow.fetch_token(authorization_response=request.build_absolute_uri())
-
-    creds = flow.credentials
-    assistant = AIVoiceAssistant.objects.get(id=request.session['assistant_id'])
-
-    assistant.google_access_token = creds.token
-    assistant.google_refresh_token = creds.refresh_token
-    assistant.google_token_expiry = creds.expiry
-    assistant.google_calendar_email = creds.id_token.get("email")
-    assistant.save()
-
-    return redirect("/")
 
 def google_callback(request):
+    import os
+    import requests
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+    print("Received Google callback:", request.GET)
+
     code = request.GET.get("code")
 
     if not code:
         return HttpResponse("No code received from Google", status=400)
 
-    token_url = "https://oauth2.googleapis.com/token"
+    flow = Flow.from_client_secrets_file(
+        'client_secret.json',
+        scopes=[
+            'https://www.googleapis.com/auth/calendar',
+            'openid',
+            'https://www.googleapis.com/auth/userinfo.email'
+        ],
+        state=request.session.get('oauth_state'),
+        redirect_uri=settings.GOOGLE_REDIRECT_URI
+    )
 
-    data = {
-        "code": code,
-        "client_id": settings.GOOGLE_CLIENT_ID,
-        "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+    creds = flow.credentials
 
-    r = requests.post(token_url, data=data)
-    token_data = r.json()
+    assistant = get_object_or_404(
+        AIVoiceAssistant, id=request.session.get("assistant_id")
+    )
 
-    if "access_token" not in token_data:
-        return HttpResponse(f"Token error: {token_data}", status=400)
+    # Get user email properly
+    userinfo = requests.get(
+        "https://www.googleapis.com/oauth2/v1/userinfo",
+        params={"access_token": creds.token}
+    ).json()
 
-    return HttpResponse("✅ Google Calendar connected successfully.")
+    assistant.google_access_token = creds.token
+    assistant.google_refresh_token = creds.refresh_token
+    assistant.google_token_expiry = creds.expiry
+    assistant.google_calendar_email = userinfo.get("email")
+    assistant.save()
+
+    request.session.pop("oauth_state", None)
+    request.session.pop("assistant_id", None)
+
+    return redirect("/")
+
+
 
 

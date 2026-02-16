@@ -32,6 +32,7 @@ class AIVoiceAssistant(models.Model):
     is_configurable = models.BooleanField(default=True)
     voice_enabled = models.BooleanField(default=True)
     text_enabled = models.BooleanField(default=True)
+    booking_required = models.BooleanField(default=True)
 
     # Timestamps
     created_at = models.DateTimeField()
