@@ -1,6 +1,6 @@
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from agents.agent import agent
+from agent import agent
 from google.genai import types
 import os
 
@@ -38,5 +38,3 @@ def run_agent(phone_number: str, user_text: str) -> str:
 
     return final_text or "Sorry, I didn't understand that."
 
-response = run_agent("+7872435623", "Hello, I want to book an appointment with an orthopedic doctor.")   
-print(response)

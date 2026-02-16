@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
 from twilio.twiml.voice_response import VoiceResponse, Gather
-from agents.agent_runner import run_agent
+from agent_runner import run_agent
 
 app = FastAPI()
 
+#ngrok http 8000
 
 @app.post("/ivr")
 async def ivr_webhook(request: Request):
