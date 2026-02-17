@@ -1,9 +1,15 @@
+
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from agent import agent
 from google.genai import types
 import os
+from dotenv import load_dotenv
+import re
+import json
 
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 APP_NAME = "ivr_app"
 
 session_service = InMemorySessionService()
@@ -17,10 +23,14 @@ runner = Runner(
 
 
 def run_agent(phone_number: str, user_text: str) -> str:
+    
+    user_text += f" Twilio number: {phone_number}."
+    
     message = types.Content(
             role="user",
             parts=[types.Part(text=user_text)]
         )
+    print(f"Phone number: {phone_number}, User text: {user_text}")
     events = runner.run(
         user_id=phone_number,
         session_id=phone_number,

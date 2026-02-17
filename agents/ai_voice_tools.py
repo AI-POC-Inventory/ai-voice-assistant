@@ -1,3 +1,4 @@
+
 import sqlite3
 from typing import Optional, Dict
 from google.oauth2.credentials import Credentials
@@ -5,8 +6,13 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 import pytz
+import os
+from dotenv import load_dotenv
 
-DB_PATH = "D:\\Sujit\\AiML\\ai-voice-assistant\\db\\ai-voice.db"   # adjust if needed
+# Load environment variables
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+
+DB_PATH = os.getenv("DB_PATH", "/Users/dt233894/vscode/ai-voice-assistant/db/ai-voice.db")
 
 
 def fetch_config(twilio_number: str) -> Optional[Dict]:
@@ -62,8 +68,8 @@ def get_details_from_calendar(
         token=access_token,
         refresh_token=refresh_token,
         token_uri="https://oauth2.googleapis.com/token",
-        client_id="989713142030-38j6ajhumsf381i79t7ga3qq81tg86rj.apps.googleusercontent.com",
-        client_secret="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"
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
     )
 
     # 🔄 Auto refresh token if expired
@@ -101,8 +107,8 @@ def book_appointment(
         token=access_token,
         refresh_token=refresh_token,
         token_uri="https://oauth2.googleapis.com/token",
-        client_id="989713142030-38j6ajhumsf381i79t7ga3qq81tg86rj.apps.googleusercontent.com",
-        client_secret="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"
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
     )
 
     # 🔄 Auto refresh token if expired
