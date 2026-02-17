@@ -5,7 +5,6 @@ from google.genai import types
 import os
 
 APP_NAME = "ivr_app"
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCFmGJLnlVTsz_oO3P17bbr7X4-Y5Kq7e0"
 
 session_service = InMemorySessionService()
 
@@ -35,6 +34,6 @@ def run_agent(phone_number: str, user_text: str) -> str:
             for part in event.content.parts:
                 if hasattr(part, "text") and part.text:
                     final_text = part.text
-
+    print 
     return final_text or "Sorry, I didn't understand that."
 

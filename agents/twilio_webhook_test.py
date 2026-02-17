@@ -6,7 +6,6 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCFmGJLnlVTsz_oO3P17bbr7X4-Y5Kq7e0"
 
 APP_NAME = "IVR"
 USER_ID = "+917872435623"
